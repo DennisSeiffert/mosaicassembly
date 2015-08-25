@@ -28,7 +28,7 @@ func Test_mapImageFilenameToPositions(t *testing.T) {
 		for coordinate, _ := range coordinates{
 			_, ok = value[coordinate]
 			if !ok {
-				t.Error("cannot find coordinate",coordinate)
+				t.Error("cannot find coordinate: %v",coordinate)
 			}
 		} 
 	}

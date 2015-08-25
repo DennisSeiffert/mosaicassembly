@@ -42,25 +42,31 @@ func assembleMosaic(imagePos ImagePositions) {
 	mapImageFilenameToPositions(imagesAtCoordinatesMap, imagePos, width)
 	
 	for imageName, coordinates := range imagesAtCoordinatesMap {
-		func(){
-		imgfile, err := os.Open("/home/dennis/Desktop/img/" + imageName)
-		fmt.Printf("opened filename " +  imageName + "\n")
-		defer imgfile.Close()
+		fmt.Printf("opening filename " +  imageName + "\n")		
+		img, err := openImage(imageName)			
 		if err != nil {
-			fmt.Println("img.jpg file not found!")
-		} else {
-			img, _, _ := image.Decode(imgfile)
-			for coordinate,_ := range coordinates {				
-				fmt.Printf("%+v\n", coordinate)
-				draw.NearestNeighbor.Scale(dst, image.Rect(coordinate.x, coordinate.y, coordinate.x+5, coordinate.y+5), img, img.Bounds(), draw.Over, nil)	
-			}
-		}
-		}();
-		
-		save("out.png", dst)
-	}
+			fmt.Printf("Cannot open image %s", imageName)
+		} else {			
+			positionImage(coordinates, img, dst)
+			save("out.png", dst)
+		}				
+	}   
+}
 
-    save("out.png", dst)
+func openImage(filename string) (image.Image, error) {
+	imgfile, err := os.Open("/home/dennis/Desktop/img/" + filename)
+	defer imgfile.Close()							
+	if err != nil {
+		return nil,err
+	}
+	img, _, _ := image.Decode(imgfile)
+	return img,nil			
+}
+
+func positionImage(coordinates map[Coordinate]bool, img image.Image, dst *image.RGBA){
+	for coordinate,_ := range coordinates {								
+		draw.NearestNeighbor.Scale(dst, image.Rect(coordinate.x, coordinate.y, coordinate.x+5, coordinate.y+5), img, img.Bounds(), draw.Over, nil)	
+	}
 }
 
 func save(filename string, dst draw.Image) {
